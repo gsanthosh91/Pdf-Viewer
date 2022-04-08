@@ -5,7 +5,6 @@ import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -316,7 +315,7 @@ class PdfViewerActivity : AppCompatActivity() {
     }
 
     private fun downloadPdf() {
-        try {
+        /*try {
             if (permissionGranted!!) {
                 val directoryName = intent.getStringExtra(FILE_DIRECTORY)
                 val fileName = intent.getStringExtra(FILE_TITLE)
@@ -369,7 +368,41 @@ class PdfViewerActivity : AppCompatActivity() {
 
         } catch (e: Exception) {
             Log.e("Error", e.toString())
+        }*/
+
+        val url : String? = fileUrl
+
+        url?.let {
+            Log.d("DFERE", "url: $it")
+            val fileName: String = it.substring(it.lastIndexOf('/') + 1)
+            val direct = File(getExternalFilesDir(null), "/JJEDU")
+            if (!direct.exists()) {
+                direct.mkdirs()
+            }
+            val mgr = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+            val downloadUri = Uri.parse(it)
+            val request = DownloadManager.Request(
+                downloadUri
+            )
+
+            Toast.makeText(this, "Downloading...", Toast.LENGTH_SHORT).show()
+
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false)
+                .setTitle(fileName)
+                .setDescription("Downloading...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(
+                    Environment.DIRECTORY_DOWNLOADS,
+                    "/JJEDU/$fileName"
+                )
+
+            val downloadID = mgr.enqueue(request)
         }
+
+
+
     }
 
     private fun checkPermission(requestCode: Int) {
